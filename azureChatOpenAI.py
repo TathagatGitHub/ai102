@@ -17,6 +17,8 @@ azure_openai_endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
 #project_connection_string = os.getenv("CONTENTUNDERSTANDING_ENDPOINT")
 azure_openai_key = os.getenv("AZURE_OPENAI_KEY")
 
+
+
 llm = AzureChatOpenAI(
     azure_endpoint=azure_openai_endpoint,
     api_key=azure_openai_key,
@@ -26,12 +28,13 @@ llm = AzureChatOpenAI(
 
 # 2. Fabric Lakehouse Config (SQL Alchemy format)
 
-SERVER = "qmmuvmirrmauboe46vi3s6b3um-5updb6opn2hu5awqmb5fgzzzgi.database.fabric.microsoft.com,1433"
-DATABASE = "DemoSQLDatabase-f499435c-5bc1-4785-92c8-5015977d6d98"
+SERVER = os.getenv("SERVER")
+DATABASE = os.getenv("DATABASE")
 
-# Service Principal Auth (from environment variables)
+# Service Principal Auth (from lanchainopenaisql-projecthub.py)
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
 
 params = urllib.parse.quote_plus(
     "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -45,8 +48,6 @@ params = urllib.parse.quote_plus(
     "Login Timeout=180;"
 )
 conn_str = f"mssql+pyodbc:///?odbc_connect={params}"
-
-
 
 # 2. Connect to the Database
 db = SQLDatabase.from_uri(conn_str)

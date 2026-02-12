@@ -4,11 +4,8 @@ from azure.identity import DefaultAzureCredential
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 load_dotenv()
-# 1. Initialize the Manager (AIProjectClient)
-# This connects to the Hub/Project to see what's available
-# Create an Azure AI Project client
-project_connection_string = os.environ["PROJECT_CONNECTION_STRING"]
 
+project_connection_string = os.environ["PROJECT_CONNECTION_STRING"]
 
 # AIProjectClient requires a TokenCredential, not AzureKeyCredential
 credential = DefaultAzureCredential()
@@ -20,15 +17,12 @@ conn_str = project_connection_string
 # Parse the string
 details = dict(item.split('=') for item in conn_str.split(';') if '=' in item)
 
-# AIProjectClient requires endpoint URL, not individual parameters
-# Use the connection string directly
 project = AIProjectClient(
     endpoint=conn_str,
     credential=credential
 )
 # 2. Ask the Manager for the specific deployment details
-# (You aren't hardcoding the URL anymore!)
-# Note: You need to know the 'connection name' inside the project
+
 print("Available connections in the project:")
 connections_list = []
 for conn in project.connections.list():
