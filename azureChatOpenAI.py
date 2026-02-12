@@ -14,6 +14,7 @@ load_dotenv()
 
 # Create an Azure AI Project client
 azure_openai_endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
+#project_connection_string = os.getenv("CONTENTUNDERSTANDING_ENDPOINT")
 azure_openai_key = os.getenv("AZURE_OPENAI_KEY")
 
 llm = AzureChatOpenAI(
