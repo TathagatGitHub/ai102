@@ -1,0 +1,32 @@
+```mermaid
+graph TD
+    %% Nodes
+    SQLDB[("Fabric SQL DB<br>(Transactional ODS)")]
+    LH[("Lakehouse<br>(Spark Analytics)")]
+    DW[("Data Warehouse<br>(T-SQL Reporting)")]
+
+    %% 1. SQL DB -> Lakehouse (Mirroring)
+    SQLDB -->|Mirroring| LH
+
+    %% 2. SQL DB -> Warehouse (Cross-DB Query)
+    SQLDB -->|Cross-DB Query| DW
+
+    %% 3. Lakehouse -> Warehouse (SQL Endpoint)
+    LH -->|SQL Endpoint| DW
+
+    %% 4. Warehouse -> Lakehouse (Shortcuts)
+    DW -->|Shortcuts| LH
+
+    %% 5. Lakehouse -> SQL DB (Pipeline)
+    LH -.->|Pipeline Copy Activity| SQLDB
+
+    %% 6. Warehouse -> SQL DB (Pipeline)
+    DW -.->|Pipeline Copy Activity| SQLDB
+
+    %% Styling
+    classDef zeroCopy fill:#e6fffa,stroke:#00b386,stroke-width:2px;
+    classDef physicalCopy fill:#fff5f5,stroke:#ff4d4d,stroke-width:2px,stroke-dasharray: 5 5;
+    
+    linkStyle 0,1,2,3 stroke:#00b386,stroke-width:3px;
+    linkStyle 4,5 stroke:#ff4d4d,stroke-width:3px,stroke-dasharray: 5 5;
+```

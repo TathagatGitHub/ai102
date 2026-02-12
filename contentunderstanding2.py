@@ -102,7 +102,7 @@ def main() -> None:
 
     # Pretty-print the raw JSON response
     pretty_json = json.dumps(response_json, indent=2, ensure_ascii=False)
-    print(pretty_json)
+    # print(pretty_json)
 
     # Store the raw JSON response to a file for further analysis if needed
     output_file = "raw_response_documentSearch.json"
