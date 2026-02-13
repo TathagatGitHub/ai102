@@ -1,6 +1,33 @@
-# Azure & Fabric Hybrid Architecture Diagram
-
-```mermaid
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid Diagram Preview</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Diagram Preview: authentication.md</h1>
+    <div class="container">
+        <pre class="mermaid">
 graph TD
     %% --- Styles ---
     classDef azure fill:#0078D4,stroke:#005A9E,stroke-width:2px,color:white;
@@ -41,47 +68,40 @@ graph TD
     %% --- Connections & Handshakes ---
     
     %% 1. Identity & Security
-    EntraID -.->|Auth/Managed ID| WebApp
-    EntraID -.->|Auth/Managed ID| ADF
+    EntraID -.->|Auth / Managed Identity| WebApp
+    EntraID -.->|Auth / Managed Identity| ADF
     EntraID -.->|Auth| FabricSQL
     KeyVault -.->|Secrets| ADF
     KeyVault -.->|Secrets| FabPipeline
 
     %% 2. Web App Flow
-    WebApp -->|SQL w/Managed ID| FabricSQL
-    FabricSQL -.->|Zero-Copy Mirror| MirroredData
+    WebApp == "SQL Connection<br>(Managed Identity)" ==> FabricSQL
+    FabricSQL -.->|Mirroring<br>Zero-Copy| MirroredData
 
     %% 3. File Share Sync
-    FileShare -->|SMB Read| FabPipeline
-    FabPipeline -->|Write Files| LakeFiles
+    FileShare -- "SMB Protocol<br>(Read)" --> FabPipeline
+    FabPipeline -- "Write File" --> LakeFiles
 
     %% 4. ADF Legacy Flow
-    ADF -->|ADLS Gen2 API| LakeFiles
+    ADF -- "ADLS Gen2 API<br>(Linked Service)" --> LakeFiles
 
     %% 5. AI / Email Flow
-    PowerAuto -->|REST Put| LakeFiles
-    LakeFiles -->|Read Blob| AzureAI
-    AzureAI -->|JSON Output| Notebook
-    Notebook -->|Insert/Merge| FabricSQL
+    PowerAuto -- "HTTP/REST<br>(Put Blob)" --> LakeFiles
+    LakeFiles -- "Read Blob" --> AzureAI
+    AzureAI -- "JSON Output" --> Notebook
+    Notebook -- "INSERT / MERGE" --> FabricSQL
 
     %% 6. Analytics & Reporting
     MirroredData -.->|Shortcut| LakeTables
-    LakeTables -->|Direct Lake| PowerBI
+    LakeTables == "Direct Lake<br>(High Speed)" ==> PowerBI
 
     %% --- Layout Adjustments ---
-```
+        </pre>
+    </div>
 
-
-## Architecture Flow
-
-- **Entra ID**: Manages identity and authentication across Azure & Fabric
-- **Key Vault**: Stores secrets and connection strings securely
-- **Web App**: Legacy .NET application with managed identity auth
-- **Data Factory**: Legacy ETL processes and data movement
-- **Power Automate**: Automated workflow for email interception
-- **Azure AI**: Content understanding and document processing
-- **OneLake**: Unified storage layer (Bronze/Silver/Gold layers)
-- **Fabric SQL**: Transactional database with zero-copy mirroring
-- **Fabric Pipeline**: Modern data pipeline for orchestration
-- **Notebook**: PySpark compute for data transformation
-- **Power BI**: Analytics and reporting layer
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>

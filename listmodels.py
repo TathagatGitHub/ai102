@@ -1,4 +1,5 @@
 import os
+import logging
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from azure.core.credentials import AzureKeyCredential
@@ -7,6 +8,7 @@ from dotenv import load_dotenv
 # ============================================
 # Configuration
 # ============================================
+logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 OM_FOUNDRY_PROJECT_ENDPOINT = os.getenv("OM_FOUNDRY_PROJECT_ENDPOINT")
 OM_FOUNDRY_DEFAULT_PRO_ENDPOINT = os.getenv("OM_FOUNDRY_DEFAULT_PRO_ENDPOINT")

@@ -41,47 +41,32 @@ graph TD
     %% --- Connections & Handshakes ---
     
     %% 1. Identity & Security
-    EntraID -.->|Auth/Managed ID| WebApp
-    EntraID -.->|Auth/Managed ID| ADF
+    EntraID -.->|Auth / Managed Identity| WebApp
+    EntraID -.->|Auth / Managed Identity| ADF
     EntraID -.->|Auth| FabricSQL
     KeyVault -.->|Secrets| ADF
     KeyVault -.->|Secrets| FabPipeline
 
     %% 2. Web App Flow
-    WebApp -->|SQL w/Managed ID| FabricSQL
-    FabricSQL -.->|Zero-Copy Mirror| MirroredData
+    WebApp == "SQL Connection<br>(Managed Identity)" ==> FabricSQL
+    FabricSQL -.->|Mirroring<br>Zero-Copy| MirroredData
 
     %% 3. File Share Sync
-    FileShare -->|SMB Read| FabPipeline
-    FabPipeline -->|Write Files| LakeFiles
+    FileShare -- "SMB Protocol<br>(Read)" --> FabPipeline
+    FabPipeline -- "Write File" --> LakeFiles
 
     %% 4. ADF Legacy Flow
-    ADF -->|ADLS Gen2 API| LakeFiles
+    ADF -- "ADLS Gen2 API<br>(Linked Service)" --> LakeFiles
 
     %% 5. AI / Email Flow
-    PowerAuto -->|REST Put| LakeFiles
-    LakeFiles -->|Read Blob| AzureAI
-    AzureAI -->|JSON Output| Notebook
-    Notebook -->|Insert/Merge| FabricSQL
+    PowerAuto -- "HTTP/REST<br>(Put Blob)" --> LakeFiles
+    LakeFiles -- "Read Blob" --> AzureAI
+    AzureAI -- "JSON Output" --> Notebook
+    Notebook -- "INSERT / MERGE" --> FabricSQL
 
     %% 6. Analytics & Reporting
     MirroredData -.->|Shortcut| LakeTables
-    LakeTables -->|Direct Lake| PowerBI
+    LakeTables == "Direct Lake<br>(High Speed)" ==> PowerBI
 
     %% --- Layout Adjustments ---
 ```
-
-
-## Architecture Flow
-
-- **Entra ID**: Manages identity and authentication across Azure & Fabric
-- **Key Vault**: Stores secrets and connection strings securely
-- **Web App**: Legacy .NET application with managed identity auth
-- **Data Factory**: Legacy ETL processes and data movement
-- **Power Automate**: Automated workflow for email interception
-- **Azure AI**: Content understanding and document processing
-- **OneLake**: Unified storage layer (Bronze/Silver/Gold layers)
-- **Fabric SQL**: Transactional database with zero-copy mirroring
-- **Fabric Pipeline**: Modern data pipeline for orchestration
-- **Notebook**: PySpark compute for data transformation
-- **Power BI**: Analytics and reporting layer

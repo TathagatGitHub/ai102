@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure & Fabric Architecture Diagram</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Azure & Fabric Hybrid Architecture</h1>
+    <div class="container">
+        <pre class="mermaid">
+graph TD
+    %% --- Styles ---
+    classDef azure fill:#0078D4,stroke:#005A9E,stroke-width:2px,color:white;
+    classDef fabric fill:#744DA9,stroke:#5C2D91,stroke-width:2px,color:white;
+    classDef storage fill:#289556,stroke:#1E7145,stroke-width:2px,color:white;
+    classDef security fill:#FFB900,stroke:#D83B01,stroke-width:2px,color:black;
+
+    %% --- Azure Cloud Environment ---
+    subgraph Azure_Cloud [Azure Cloud Platform]
+        direction TB
+        EntraID[("Entra ID (Azure AD)<br>Identity Provider")]:::security
+        KeyVault[("Azure Key Vault<br>Secrets & Keys")]:::security
+        
+        WebApp[("Azure App Service<br>(.NET Web App)")]:::azure
+        ADF[("Azure Data Factory<br>(Legacy ETL)")]:::azure
+        FileShare[("Azure File Share<br>(Legacy SMB Drive)")]:::storage
+        
+        PowerAuto[("Power Automate<br>(Email Interceptor)")]:::azure
+        AzureAI[("Azure AI Content<br>Understanding")]:::azure
+    end
+
+    %% --- Microsoft Fabric Environment ---
+    subgraph Fabric_Cloud [Microsoft Fabric]
+        direction TB
+        
+        subgraph OneLake_Storage [OneLake - Unified Storage]
+            LakeFiles[("Lakehouse Files<br>(Bronze/Raw)")]:::storage
+            LakeTables[("Lakehouse Tables<br>(Silver/Gold)")]:::storage
+            MirroredData[("Mirrored SQL Data<br>(Delta Parquet)")]:::storage
+        end
+        
+        FabricSQL[("Fabric SQL Database<br>(Transactional ODS)")]:::fabric
+        FabPipeline[("Fabric Data Pipeline<br>(Copy Activity)")]:::fabric
+        Notebook[("Fabric Notebook<br>(PySpark Compute)")]:::fabric
+        PowerBI[("Power BI<br>(Reporting)")]:::fabric
+    end
+
+    %% --- Connections & Handshakes ---
+    
+    %% 1. Identity & Security
+    EntraID -.->|Auth/Managed ID| WebApp
+    EntraID -.->|Auth/Managed ID| ADF
+    EntraID -.->|Auth| FabricSQL
+    KeyVault -.->|Secrets| ADF
+    KeyVault -.->|Secrets| FabPipeline
+
+    %% 2. Web App Flow
+    WebApp -->|SQL w/Managed ID| FabricSQL
+    FabricSQL -.->|Zero-Copy Mirror| MirroredData
+
+    %% 3. File Share Sync
+    FileShare -->|SMB Read| FabPipeline
+    FabPipeline -->|Write Files| LakeFiles
+
+    %% 4. ADF Legacy Flow
+    ADF -->|ADLS Gen2 API| LakeFiles
+
+    %% 5. AI / Email Flow
+    PowerAuto -->|REST Put| LakeFiles
+    LakeFiles -->|Read Blob| AzureAI
+    AzureAI -->|JSON Output| Notebook
+    Notebook -->|Insert/Merge| FabricSQL
+
+    %% 6. Analytics & Reporting
+    MirroredData -.->|Shortcut| LakeTables
+    LakeTables -->|Direct Lake| PowerBI
+        </pre>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+
+</html>
