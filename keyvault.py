@@ -6,9 +6,11 @@ from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 load_dotenv()
 credential = DefaultAzureCredential()
-vault_url = os.environ["AZURE_VAULT_URL"]  
+#vault_url = os.environ["AZURE_VAULT_URL"]  
+vault_url = os.getenv("AZURE_VAULT_URL_EMPOWEROCEAN")
 
-secret_name = "kv-webapp-st-secretkey"
+#secret_name = "kv-webapp-st-secretkey"
+secret_name = "GooglePixelEmailPassword"
 
 secret_client = SecretClient(vault_url=vault_url, credential=credential)
 

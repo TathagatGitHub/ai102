@@ -6,7 +6,7 @@ graph TD
     DW[("Data Warehouse<br>(T-SQL Reporting)")]
 
     %% 1. SQL DB -> Lakehouse (Mirroring)
-    SQLDB -->|Mirroring| LH
+    SQLDB -->|Using Shortcut automatic available| LH
 
     %% 2. SQL DB -> Warehouse (Cross-DB Query)
     SQLDB -->|Cross-DB Query| DW
