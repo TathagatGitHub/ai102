@@ -14,6 +14,7 @@ Concepts demonstrated:
 """
 
 import os
+import sys
 import urllib.parse
 from typing import Any, Optional
 from typing_extensions import TypedDict
@@ -70,6 +71,8 @@ SCHEMA_REGISTRY: dict = {
     "podinvoices": "Podcast invoice records — billing and invoices specific to podcast advertising",
     "radiolog":    "Radio broadcast logs — radio air check data, logged spots, discrepancy reporting",
     "response":    "Response tracking — direct response (DR) metrics, call volumes, campaign response rates",
+    "viewership":  "Viewership data — network audience measurements, ratings, and viewing statistics",
+    "scheduletools": "client, rates, upfront, remnant, Property, networklogs, demo, daypart, prelog, postlog, actualized data, schedule, and proposal tables",
 }
 
 
@@ -218,14 +221,30 @@ graph = graph_builder.compile()
 
 # ── Run ───────────────────────────────────────────────────────────────────────
 
+
+   
+def run() -> None:
+    while True:
+        question = input("Ask a question about your data: ")
+        print(f"\nQuestion: {question}")
+        # ── Built-in commands ────────────────────────────────────────────
+        if question.lower() in ("exit", "quit", "bye"):
+            print("Goodbye!")
+            sys.exit(0)
+    
+        print("=" * 60)
+
+        # ── Invoke graph ─────────────────────────────────────────────────
+        try:
+            final_state = graph.invoke({"question": question})
+        except Exception as exc:
+            print(f"\n[Graph error]: {exc}\n")
+        #final_state = graph.invoke({"question": question})
+
+        print("\n" + "=" * 60)
+        print("FINAL ANSWER:")
+        print(final_state["answer"])
+
+
 if __name__ == "__main__":
-    question = input("Ask a question about your data: ")
-
-    print(f"\nQuestion: {question}")
-    print("=" * 60)
-
-    final_state = graph.invoke({"question": question})
-
-    print("\n" + "=" * 60)
-    print("FINAL ANSWER:")
-    print(final_state["answer"])
+    run()
